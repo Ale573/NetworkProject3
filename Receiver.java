@@ -47,29 +47,32 @@ public class Receiver extends Thread {
                 for (int i = 0; i < BUFFER_SIZE-4; i++)
                     rMessage[i] = data[i+4];
                 
-                //Convert sequence No. into 'int' using Byte Buffer
-                int x = ByteBuffer.wrap(rSequenceNo).getInt();
-
                 // Convert message to String
                 String message = new String(rMessage, 0, BUFFER_SIZE-4);
 
+                // receive seqNum
+                Integer ack = ByteBuffer.wrap(data).getInt(0);
+
+                // Get packet's IP and port
+                InetAddress IPAddress = receive_packet.getAddress();
+                int port = receive_packet.getPort();
+
                 // Verify if the packet is duplicated
-                if(sequenceNumber == x) {
+                if(sequenceNumber == ack) {
 
                     System.out.println("FROM SENDER: " + message);
 
                     sequenceNumber++;
 
-                    // Get packet's IP and port
-                    InetAddress IPAddress = receive_packet.getAddress();
-                    int port = receive_packet.getPort();
-
-                    // Send AKC
-                    //DatagramPacket send_packet = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                    //socket.send(send_packet);
+                    //Create ackNum
+                    ack++;
+                    System.out.println(ack);
+                    DatagramPacket ack_packet = new DatagramPacket(ByteBuffer.allocate(4).putInt(ack).array(), 4, IPAddress, port);
+                    socket.send(ack_packet);
+                    System.out.println("Acknowledgement sent");
                 }
-                else { 
-                    System.out.println("Packet duplicated");
+                else {
+                    System.out.println("Packet duplicated.");
                 }
 
                 // Exit the server if the sender sends "exit"
