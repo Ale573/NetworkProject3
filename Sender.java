@@ -52,19 +52,38 @@ public class Sender extends Thread {
                 DatagramPacket send_packet = new DatagramPacket(sendData, sendData.length, IPAddress, 6789);
 
                 // Discard packet
-                if(discard.nextDouble() < 0.20) {
+                if(discard.nextDouble() <= 0.20) {
                     System.out.println("The packet was discarded.");
                 }
                 else {
                     // Duplicate packet
-                    if(duplicate.nextDouble() < 0.10) {
+                    if(duplicate.nextDouble() <= 0.10) {
                         socket.send(send_packet);
                         System.out.println("The packet was duplicated.");
                     }
 
+                    while(true){
                     // Send the UDP packet to receiver
                     socket.send(send_packet);
                     sequenceNumber++;
+
+                    //acknowledge received packet
+                    byte[] ack = new byte[4];
+                    DatagramPacket ackPacket = new DatagramPacket(ack, 4, IPAddress, 6789);
+
+                    //wait 1 second to receive or resend
+                    socket.setSoTimeout(1000);
+                    try{
+                    socket.receive(ackPacket);
+                    System.out.println(ByteBuffer.wrap(ack).getInt(0));
+                    }catch(SocketTimeoutException e){
+                        System.out.println("Packet was not received, resending");
+                    }finally{
+                        if(ByteBuffer.wrap(ack).getInt(0)==sequenceNumber){
+                            break;
+                        }
+                    }
+                    }
                 }
 
                 // break the loop if sender enters "exit"
