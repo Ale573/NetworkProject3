@@ -9,12 +9,16 @@ public class Receiver extends Thread {
 
     private static final int BUFFER_SIZE = 100;
     private static final int PORT = 6789;
+    private static final int BASE_SEQUENCE_NUMBER = 32;
 
     public void run() {
 
         // Create a byte array
         //byte[] ACK = new byte[4];
         byte[] receiveData = new byte[BUFFER_SIZE];
+
+        // Create the sequence number
+        Integer sequenceNumber = BASE_SEQUENCE_NUMBER;
 
         try {
             // Create a socket
@@ -45,19 +49,28 @@ public class Receiver extends Thread {
                 
                 //Convert sequence No. into 'int' using Byte Buffer
                 int x = ByteBuffer.wrap(rSequenceNo).getInt();
-                
+
                 // Convert message to String
                 String message = new String(rMessage, 0, BUFFER_SIZE-4);
 
-                System.out.println("FROM SENDER: " + message);
+                // Verify if the packet is duplicated
+                if(sequenceNumber == x) {
 
-                // Get packet's IP and port
-                InetAddress IPAddress = receive_packet.getAddress();
-                int port = receive_packet.getPort();
+                    System.out.println("FROM SENDER: " + message);
 
-                // Send AKC
-                //DatagramPacket send_packet = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                //socket.send(send_packet);
+                    sequenceNumber++;
+
+                    // Get packet's IP and port
+                    InetAddress IPAddress = receive_packet.getAddress();
+                    int port = receive_packet.getPort();
+
+                    // Send AKC
+                    //DatagramPacket send_packet = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+                    //socket.send(send_packet);
+                }
+                else { 
+                    System.out.println("Packet duplicated");
+                }
 
                 // Exit the server if the sender sends "exit"
                 if (message.equals("exit")){
