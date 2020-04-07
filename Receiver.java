@@ -25,13 +25,14 @@ public class Receiver extends Thread {
         try {
             // Create a socket
             DatagramSocket socket = new DatagramSocket(PORT);
+            socket.connect(InetAddress.getLocalHost(), PORT);
 
             while (true) {
 
                 final Random discard = new Random();
-
+                InetAddress IPAddress = InetAddress.getLocalHost();
                 // Receive the packet
-                DatagramPacket receive_packet = new DatagramPacket(receiveData, receiveData.length);
+                DatagramPacket receive_packet = new DatagramPacket(receiveData, receiveData.length,IPAddress,PORT);
                 socket.receive(receive_packet);
 
                 // Get the seqNo and message
@@ -58,7 +59,6 @@ public class Receiver extends Thread {
                 Integer ack = ByteBuffer.wrap(data).getInt(0);
 
                 // Get packet's IP and port
-                InetAddress IPAddress = receive_packet.getAddress();
                 int port = receive_packet.getPort();
                 
                  // Verify if the packet is duplicated

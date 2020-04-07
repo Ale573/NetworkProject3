@@ -7,7 +7,6 @@ import java.util.Scanner;
 public class Sender extends Thread {
 
     private static final int BUFFER_SIZE = 100;
-    private static final String HOSTNAME = "localhost";
     private static final int BASE_SEQUENCE_NUMBER = 32;
 
     public void run() {
@@ -21,7 +20,6 @@ public class Sender extends Thread {
 
             // Create a socket
             final DatagramSocket socket = new DatagramSocket();
-            //socket.setSoTimeout(1000);
 
             while (true) {
 
@@ -46,8 +44,8 @@ public class Sender extends Thread {
                 System.arraycopy(byteMessage, 0, sendData, 5, byteMessage.length);
 
                 // Get IP address of receiver
-                InetAddress IPAddress = InetAddress.getByName(HOSTNAME);
-
+                InetAddress IPAddress = InetAddress.getLocalHost();
+                System.out.println(IPAddress);
                 // Packet to send
                 DatagramPacket send_packet = new DatagramPacket(sendData, sendData.length, IPAddress, 6789);
 
