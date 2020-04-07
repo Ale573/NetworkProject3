@@ -74,10 +74,11 @@ public class Sender extends Thread {
                     //wait 1 second to receive or resend
                     socket.setSoTimeout(1000);
                     try{
-                    socket.receive(ackPacket);
-                    System.out.println(ByteBuffer.wrap(ack).getInt(0));
+                        socket.receive(ackPacket);
+                        System.out.println(ByteBuffer.wrap(ack).getInt(0));
                     }catch(SocketTimeoutException e){
                         System.out.println("Packet was not received, resending");
+                        sequenceNumber--;
                     }finally{
                         if(ByteBuffer.wrap(ack).getInt(0)==sequenceNumber){
                             break;

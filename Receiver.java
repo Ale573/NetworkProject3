@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.Random;
 
 public class Receiver extends Thread {
 
@@ -25,6 +26,8 @@ public class Receiver extends Thread {
             DatagramSocket socket = new DatagramSocket(PORT);
 
             while (true) {
+
+                final Random discard = new Random();
 
                 // Receive the packet
                 DatagramPacket receive_packet = new DatagramPacket(receiveData, receiveData.length);
@@ -56,23 +59,31 @@ public class Receiver extends Thread {
                 // Get packet's IP and port
                 InetAddress IPAddress = receive_packet.getAddress();
                 int port = receive_packet.getPort();
+                
+                 // Verify if the packet is duplicated
+                 if(sequenceNumber == ack) {
 
-                // Verify if the packet is duplicated
-                if(sequenceNumber == ack) {
+                    // Discard packet
+                    if(discard.nextDouble() <= 0.20) {
+                        System.out.println("The packet was discarded.");
+                    }
+                    else {
+                        System.out.println("FROM SENDER: " + message);
 
-                    System.out.println("FROM SENDER: " + message);
+                        sequenceNumber++;
 
-                    sequenceNumber++;
-
-                    //Create ackNum
-                    ack++;
-                    System.out.println(ack);
-                    DatagramPacket ack_packet = new DatagramPacket(ByteBuffer.allocate(4).putInt(ack).array(), 4, IPAddress, port);
-                    socket.send(ack_packet);
-                    System.out.println("Acknowledgement sent");
+                        //Create ackNum
+                        ack++;
+                        System.out.println(ack);
+                        DatagramPacket ack_packet = new DatagramPacket(ByteBuffer.allocate(4).putInt(ack).array(), 4, IPAddress, port);
+                        socket.send(ack_packet);
+                        System.out.println("Acknowledgement sent");
+                    }
                 }
                 else {
                     System.out.println("Packet duplicated.");
+                    System.out.println("SeqNo: " + sequenceNumber);
+                    System.out.println("ACK: " + ack);
                 }
 
                 // Exit the server if the sender sends "exit"
