@@ -56,7 +56,6 @@ public class Receiver extends Thread {
                 Integer ack = ByteBuffer.wrap(data).getInt(0);
                 //Create ackNum
                 ack++;
-                System.out.println(ack);
                 DatagramPacket ack_packet = new DatagramPacket(ByteBuffer.allocate(4).putInt(ack).array(), 4, IPAddress, port);
                 socket.send(ack_packet);
                 System.out.println("Acknowledgement sent");
