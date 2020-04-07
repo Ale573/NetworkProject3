@@ -75,19 +75,20 @@ public class Sender extends Thread {
                     socket.setSoTimeout(1000);
                     try{
                     socket.receive(ackPacket);
+                    if(ByteBuffer.wrap(ack).getInt(0)==sequenceNumber){
+                        System.out.println("Acknowledgement Received: "+sequenceNumber);
+                        break;
+                    }
                     }catch(SocketTimeoutException e){
                         System.out.println("Packet was not received, resending");
                         sequenceNumber--;
-                    }finally{
-                        if(ByteBuffer.wrap(ack).getInt(0)==sequenceNumber){
-                            break;
-                        }
                     }
                     }
                 }
 
                 // break the loop if sender enters "exit"
                 if (senderMessage.equals("exit")) {
+                    System.out.println("EXITING SENDER");
                     sc.close();
                     socket.close();
                     break;
