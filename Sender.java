@@ -30,7 +30,6 @@ public class Sender extends Thread {
                 byte[] seqNo = new byte[4];
                 byte[] byteMessage = new byte[BUFFER_SIZE-4];
                 byte[] sendData = new byte[BUFFER_SIZE];
-                //byte[] ACK = new byte[4];
 
                 // Read sender message
                 String senderMessage = sc.nextLine();
@@ -95,7 +94,7 @@ public class Sender extends Thread {
 
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
-        } catch (IOException e) { // If there is not AKC, throw exception
+        } catch (IOException e) {
             System.out.println("Timeout: Sequence Number " + sequenceNumber);
             sequenceNumber--;
         }

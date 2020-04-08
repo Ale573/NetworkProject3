@@ -16,7 +16,6 @@ public class Receiver extends Thread {
     public void run() {
 
         // Create a byte array
-        //byte[] ACK = new byte[4];
         byte[] receiveData = new byte[BUFFER_SIZE];
 
         // Create the sequence number
@@ -25,12 +24,13 @@ public class Receiver extends Thread {
         try {
             // Create a socket
             DatagramSocket socket = new DatagramSocket(PORT);
-            socket.connect(InetAddress.getLocalHost(), PORT);
+            // socket.connect(InetAddress.getLocalHost(), PORT);
 
             while (true) {
 
                 final Random discard = new Random();
                 InetAddress IPAddress = InetAddress.getLocalHost();
+                
                 // Receive the packet
                 DatagramPacket receive_packet = new DatagramPacket(receiveData, receiveData.length,IPAddress,PORT);
                 socket.receive(receive_packet);
